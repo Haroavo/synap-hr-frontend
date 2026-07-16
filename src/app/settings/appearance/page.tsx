@@ -81,7 +81,8 @@ const colorFields: ColorField[] = [
   {
     key: "borderColor",
     label: "Bordures",
-    description: "Séparateurs, champs et bordures des cartes.",
+    description:
+      "Couleur utilisée pour les séparateurs et bordures ailleurs dans l’application.",
   },
 ];
 
@@ -180,14 +181,13 @@ export default function AppearanceSettingsPage() {
   const { theme, setTheme } = useTheme();
 
   /*
-   * draft contient uniquement les valeurs modifiées
-   * dans la page, mais pas encore sauvegardées.
+   * Valeurs actuellement saisies dans la page,
+   * mais pas encore enregistrées.
    */
   const [draft, setDraft] = useState<AppearanceTheme>(theme);
 
   /*
-   * savedTheme contient les dernières valeurs
-   * réellement récupérées ou enregistrées.
+   * Dernières valeurs réellement enregistrées.
    */
   const [savedTheme, setSavedTheme] = useState<AppearanceTheme>(theme);
 
@@ -201,6 +201,10 @@ export default function AppearanceSettingsPage() {
 
   const [logoPreviewError, setLogoPreviewError] = useState(false);
 
+  /*
+   * Les boutons apparaissent seulement lorsqu’une
+   * valeur diffère des données enregistrées.
+   */
   const hasChanges = useMemo(() => {
     const normalizedDraft = normalizeThemeForComparison(draft);
 
@@ -212,8 +216,8 @@ export default function AppearanceSettingsPage() {
   }, [draft, savedTheme]);
 
   /*
-   * Charge les paramètres au démarrage.
-   * Il s’agit uniquement d’un GET.
+   * Chargement initial uniquement.
+   * Cette requête GET ne sauvegarde aucune modification.
    */
   useEffect(() => {
     let mounted = true;
@@ -249,11 +253,6 @@ export default function AppearanceSettingsPage() {
 
         setDraft(loadedTheme);
         setSavedTheme(loadedTheme);
-
-        /*
-         * Les valeurs viennent déjà de la base,
-         * elles peuvent donc être appliquées.
-         */
         setTheme(loadedTheme);
       } catch (error) {
         if (!mounted) {
@@ -284,11 +283,8 @@ export default function AppearanceSettingsPage() {
   }, [draft.logoUrl]);
 
   /*
-   * Cette fonction modifie uniquement le brouillon.
-   *
-   * Aucun fetch.
-   * Aucun PATCH.
-   * Aucun setTheme.
+   * Modification locale uniquement :
+   * aucun PATCH et aucune sauvegarde.
    */
   function updateThemeField<K extends keyof AppearanceTheme>(
     key: K,
@@ -340,7 +336,7 @@ export default function AppearanceSettingsPage() {
 
   /*
    * Seul le clic sur le bouton Enregistrer
-   * peut appeler cette fonction.
+   * exécute cette fonction et le PATCH.
    */
   async function handleSave() {
     if (saving || !hasChanges) {
@@ -362,8 +358,6 @@ export default function AppearanceSettingsPage() {
     const payload = normalizeThemeForComparison(draft);
 
     try {
-      console.log("[APPARENCE] Sauvegarde déclenchée par clic");
-
       const response = await fetch("/api/settings/appearance", {
         method: "PATCH",
         headers: {
@@ -388,8 +382,8 @@ export default function AppearanceSettingsPage() {
       const updatedTheme = normalizeTheme(data ?? payload, payload);
 
       /*
-       * Le serveur a confirmé l’enregistrement.
-       * On applique maintenant les nouvelles valeurs.
+       * Application des changements seulement
+       * après confirmation du backend.
        */
       setDraft(updatedTheme);
       setSavedTheme(updatedTheme);
@@ -417,7 +411,7 @@ export default function AppearanceSettingsPage() {
 
   /*
    * Place les valeurs par défaut dans le brouillon.
-   * Elles ne sont pas encore sauvegardées.
+   * Un clic sur Enregistrer reste nécessaire.
    */
   function handleResetToDefault() {
     setDraft(defaultTheme);
@@ -439,6 +433,7 @@ export default function AppearanceSettingsPage() {
 
   return (
     <div className="flex h-full min-h-0 flex-col p-5 lg:p-7">
+      {/* En-tête */}
       <header className="shrink-0">
         <div className="flex items-start gap-4">
           <div
@@ -464,8 +459,8 @@ export default function AppearanceSettingsPage() {
       </header>
 
       {/*
-       * Ce n’est volontairement pas un formulaire.
-       * Aucune soumission implicite n’est possible.
+       * Ce conteneur n’est pas un formulaire.
+       * L’enregistrement se fait uniquement par clic.
        */}
       <div className="mt-6 min-h-0 flex-1 overflow-y-auto pr-1">
         <div className="space-y-6 pb-2">
@@ -475,6 +470,7 @@ export default function AppearanceSettingsPage() {
             description="Définissez le nom et le logo affichés dans le sous-menu."
           >
             <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.2fr)_220px]">
+              {/* Nom de l’entreprise */}
               <label className="block">
                 <span className="text-sm font-semibold text-app-text">
                   Nom de l’entreprise
@@ -490,13 +486,13 @@ export default function AppearanceSettingsPage() {
                   maxLength={100}
                   disabled={saving}
                   className={[
-                    "mt-3 h-11 w-full rounded-xl border",
-                    "border-app-border bg-white px-4",
+                    "mt-3 h-11 w-full rounded-xl",
+                    "bg-app-background px-4",
                     "text-sm text-app-text outline-none",
                     "transition placeholder:text-slate-400",
-                    "focus:border-app-primary",
+                    "focus:bg-app-surface",
                     "focus:ring-4",
-                    "focus:ring-[color-mix(in_srgb,var(--color-primary)_10%,transparent)]",
+                    "focus:ring-[color-mix(in_srgb,var(--color-primary)_15%,transparent)]",
                     "disabled:cursor-not-allowed",
                     "disabled:opacity-60",
                   ].join(" ")}
@@ -507,6 +503,7 @@ export default function AppearanceSettingsPage() {
                 </p>
               </label>
 
+              {/* URL du logo */}
               <label className="block">
                 <span className="text-sm font-semibold text-app-text">
                   Logo de l’entreprise
@@ -531,14 +528,13 @@ export default function AppearanceSettingsPage() {
                     placeholder="/images/logo_aelovis.png"
                     disabled={saving}
                     className={[
-                      "h-11 w-full rounded-xl border",
-                      "border-app-border bg-white",
-                      "pl-12 pr-4 text-sm text-app-text",
-                      "outline-none transition",
-                      "placeholder:text-slate-400",
-                      "focus:border-app-primary",
+                      "h-11 w-full rounded-xl",
+                      "bg-app-background pl-12 pr-4",
+                      "text-sm text-app-text outline-none",
+                      "transition placeholder:text-slate-400",
+                      "focus:bg-app-surface",
                       "focus:ring-4",
-                      "focus:ring-[color-mix(in_srgb,var(--color-primary)_10%,transparent)]",
+                      "focus:ring-[color-mix(in_srgb,var(--color-primary)_15%,transparent)]",
                       "disabled:cursor-not-allowed",
                       "disabled:opacity-60",
                     ].join(" ")}
@@ -553,6 +549,7 @@ export default function AppearanceSettingsPage() {
                 </p>
               </label>
 
+              {/* Aperçu du logo */}
               <div>
                 <p className="text-sm font-semibold text-app-text">
                   Aperçu du logo
@@ -562,8 +559,8 @@ export default function AppearanceSettingsPage() {
                   className={[
                     "mt-3 flex h-[110px]",
                     "items-center justify-center",
-                    "rounded-2xl border border-dashed",
-                    "border-app-border bg-app-background p-4",
+                    "rounded-2xl",
+                    "bg-app-background p-4",
                   ].join(" ")}
                 >
                   {draft.logoUrl && !logoPreviewError ? (
@@ -590,7 +587,8 @@ export default function AppearanceSettingsPage() {
               </div>
             </div>
 
-            <div className="mt-5 rounded-xl border border-app-border bg-app-background px-4 py-3 text-xs leading-5 text-app-muted">
+            {/* Information */}
+            <div className="mt-5 rounded-xl bg-app-background px-4 py-3 text-xs leading-5 text-app-muted">
               Pour un fichier local, placez l’image dans{" "}
               <code className="font-mono font-semibold text-app-text">
                 public/images
@@ -603,10 +601,11 @@ export default function AppearanceSettingsPage() {
             </div>
           </SettingsSection>
 
+          {/* Couleurs */}
           <SettingsSection
             icon={<Palette className="h-5 w-5" strokeWidth={1.8} />}
             title="Couleurs de l’interface"
-            description="Les valeurs ne seront appliquées qu’après l’enregistrement."
+            description="Les valeurs seront appliquées seulement après l’enregistrement."
           >
             <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
               {colorFields.map((field) => (
@@ -621,38 +620,42 @@ export default function AppearanceSettingsPage() {
             </div>
           </SettingsSection>
 
+          {/* Succès */}
           {successMessage && (
             <div
               role="status"
-              className="flex items-start gap-3 rounded-xl border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-700"
+              className="flex items-start gap-3 rounded-xl bg-green-50 px-4 py-3 text-sm text-green-700"
             >
               <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0" />
+
               <p>{successMessage}</p>
             </div>
           )}
 
+          {/* Erreur */}
           {errorMessage && (
             <div
               role="alert"
-              className="flex items-start gap-3 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700"
+              className="flex items-start gap-3 rounded-xl bg-red-50 px-4 py-3 text-sm text-red-700"
             >
               <TriangleAlert className="mt-0.5 h-5 w-5 shrink-0" />
+
               <p>{errorMessage}</p>
             </div>
           )}
 
+          {/* Actions */}
           {hasChanges && (
-            <div className="flex flex-wrap items-center justify-end gap-3 border-t border-app-border pt-5">
+            <div className="flex flex-wrap items-center justify-end gap-3 pt-2">
               <button
                 type="button"
                 onClick={handleResetToDefault}
                 disabled={saving}
                 className={[
                   "flex h-11 items-center gap-2",
-                  "rounded-xl border border-app-border",
-                  "bg-app-surface px-4",
+                  "rounded-xl bg-app-background px-4",
                   "text-sm font-semibold text-app-text",
-                  "transition hover:bg-app-background",
+                  "transition hover:brightness-95",
                   "disabled:cursor-not-allowed",
                   "disabled:opacity-60",
                 ].join(" ")}
@@ -667,10 +670,9 @@ export default function AppearanceSettingsPage() {
                 disabled={saving}
                 className={[
                   "flex h-11 items-center gap-2",
-                  "rounded-xl border border-app-border",
-                  "bg-app-surface px-5",
+                  "rounded-xl bg-slate-100 px-5",
                   "text-sm font-semibold text-app-text",
-                  "transition hover:bg-app-background",
+                  "transition hover:bg-slate-200",
                   "disabled:cursor-not-allowed",
                   "disabled:opacity-60",
                 ].join(" ")}
@@ -722,8 +724,8 @@ function SettingsSection({
   children,
 }: SettingsSectionProps) {
   return (
-    <section className="rounded-2xl border border-app-border bg-app-surface p-5 lg:p-6">
-      <div className="mb-5 flex items-start gap-3 border-b border-app-border pb-5">
+    <section className="rounded-2xl bg-app-surface p-5 shadow-sm lg:p-6">
+      <div className="mb-6 flex items-start gap-3">
         <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[color-mix(in_srgb,var(--color-primary)_12%,white)] text-app-primary">
           {icon}
         </div>
@@ -756,10 +758,17 @@ function ColorSettingCard({
   const validColor = HEX_COLOR_PATTERN.test(value);
 
   return (
-    <div className="rounded-2xl border border-app-border bg-app-background p-4">
+    <div
+      className={[
+        "rounded-2xl bg-app-background p-4",
+        "transition",
+        !validColor ? "bg-red-50" : "",
+      ].join(" ")}
+    >
       <div className="flex items-start gap-3">
+        {/* Aperçu de la couleur */}
         <div
-          className="h-10 w-10 shrink-0 rounded-xl border border-app-border shadow-sm"
+          className="h-10 w-10 shrink-0 rounded-xl shadow-sm"
           style={{
             backgroundColor: validColor ? value : "transparent",
           }}
@@ -781,7 +790,13 @@ function ColorSettingCard({
           value={validColor ? value : "#000000"}
           onChange={(event) => onChange(event.target.value)}
           disabled={disabled}
-          className="h-11 w-14 shrink-0 cursor-pointer rounded-xl border border-app-border bg-white p-1 disabled:cursor-not-allowed disabled:opacity-60"
+          className={[
+            "h-11 w-14 shrink-0 cursor-pointer",
+            "overflow-hidden rounded-xl",
+            "bg-app-surface p-1 shadow-sm",
+            "disabled:cursor-not-allowed",
+            "disabled:opacity-60",
+          ].join(" ")}
         />
 
         <input
@@ -793,12 +808,14 @@ function ColorSettingCard({
           disabled={disabled}
           className={[
             "h-11 min-w-0 flex-1 rounded-xl",
-            "border bg-white px-3",
+            "bg-app-surface px-3",
             "font-mono text-sm uppercase",
-            "text-app-text outline-none transition",
+            "text-app-text outline-none",
+            "transition",
+            "focus:ring-4",
             validColor
-              ? "border-app-border focus:border-app-primary"
-              : "border-red-300 focus:border-red-500",
+              ? "focus:ring-[color-mix(in_srgb,var(--color-primary)_15%,transparent)]"
+              : "bg-red-100 focus:ring-red-200",
             "disabled:cursor-not-allowed",
             "disabled:opacity-60",
           ].join(" ")}
