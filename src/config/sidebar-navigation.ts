@@ -16,6 +16,7 @@ import {
   Landmark,
   LayoutDashboard,
   Network,
+  Palette,
   ReceiptText,
   Settings,
   ShieldCheck,
@@ -29,7 +30,6 @@ import {
 export type CompanyBrand = {
   name: string;
   logoUrl?: string | null;
-  primaryColor?: string;
 };
 
 export type SubMenuItem = {
@@ -235,17 +235,27 @@ export const sidebarMenus: SidebarMenu[] = [
     icon: Settings,
     sections: [
       {
+        title: "Personnalisation",
+        items: [
+          {
+            label: "Apparence",
+            href: "/settings/appearance",
+            icon: Palette,
+          },
+          {
+            label: "Informations entreprise",
+            href: "/dashboard/settings/company",
+            icon: Building2,
+          },
+        ],
+      },
+      {
         title: "Administration",
         items: [
           {
             label: "Paramètres RH",
             href: "/dashboard/settings/hr",
             icon: Settings,
-          },
-          {
-            label: "Informations entreprise",
-            href: "/dashboard/settings/company",
-            icon: Building2,
           },
           {
             label: "Utilisateurs et rôles",
