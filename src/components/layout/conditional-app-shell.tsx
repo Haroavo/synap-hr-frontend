@@ -4,6 +4,7 @@ import type { ReactNode } from "react";
 import { usePathname } from "next/navigation";
 
 import { AppShell } from "@/components/layout/app-shell";
+import { useTheme } from "@/components/theme/theme-provider";
 import type { AuthenticatedUser } from "@/lib/auth";
 
 type ConditionalAppShellProps = {
@@ -33,6 +34,7 @@ export function ConditionalAppShell({
   user,
 }: ConditionalAppShellProps) {
   const pathname = usePathname();
+  const { theme } = useTheme();
 
   const shouldHideSidebar = routesWithoutSidebar.some((route) =>
     matchesRoute(pathname, route),
@@ -47,8 +49,8 @@ export function ConditionalAppShell({
   }
 
   const company = {
-    name: "Entreprise cliente",
-    logoUrl: "/images/logo_aelovis.png",
+    name: theme.companyName,
+    logoUrl: theme.logoUrl,
   };
 
   return (
