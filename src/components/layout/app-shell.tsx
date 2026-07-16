@@ -14,6 +14,7 @@ import { synapTheme } from "@/config/theme";
 import { usePathname } from "next/navigation";
 
 import { type ReactNode, useEffect, useMemo, useState } from "react";
+import { AppNavbar } from "./app-navbar";
 
 type AppShellUser = {
   username: string;
@@ -89,7 +90,6 @@ export function AppShell({ children, company, user }: AppShellProps) {
         userInitials={getUserInitials(user.username)}
       />
 
-
       <SubSidebar
         menu={activeMenu}
         company={company}
@@ -97,7 +97,13 @@ export function AppShell({ children, company, user }: AppShellProps) {
         onToggle={() => setSubMenuCollapsed((current) => !current)}
       />
 
-      <main className="min-w-0 flex-1 overflow-y-auto">{children}</main>
+      <div className="flex min-w-0 flex-1 flex-col overflow-hidden">
+        <AppNavbar />
+
+        <main className="min-h-0 min-w-0 flex-1 overflow-hidden">
+          {children}
+        </main>
+      </div>
     </div>
   );
 }
