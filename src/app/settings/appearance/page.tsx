@@ -180,15 +180,8 @@ function normalizeThemeForComparison(
 export default function AppearanceSettingsPage() {
   const { theme, setTheme } = useTheme();
 
-  /*
-   * Valeurs actuellement saisies dans la page,
-   * mais pas encore enregistrées.
-   */
   const [draft, setDraft] = useState<AppearanceTheme>(theme);
 
-  /*
-   * Dernières valeurs réellement enregistrées.
-   */
   const [savedTheme, setSavedTheme] = useState<AppearanceTheme>(theme);
 
   const [loadingSettings, setLoadingSettings] = useState(true);
@@ -201,10 +194,6 @@ export default function AppearanceSettingsPage() {
 
   const [logoPreviewError, setLogoPreviewError] = useState(false);
 
-  /*
-   * Les boutons apparaissent seulement lorsqu’une
-   * valeur diffère des données enregistrées.
-   */
   const hasChanges = useMemo(() => {
     const normalizedDraft = normalizeThemeForComparison(draft);
 
@@ -215,10 +204,6 @@ export default function AppearanceSettingsPage() {
     );
   }, [draft, savedTheme]);
 
-  /*
-   * Chargement initial uniquement.
-   * Cette requête GET ne sauvegarde aucune modification.
-   */
   useEffect(() => {
     let mounted = true;
 
@@ -282,10 +267,6 @@ export default function AppearanceSettingsPage() {
     setLogoPreviewError(false);
   }, [draft.logoUrl]);
 
-  /*
-   * Modification locale uniquement :
-   * aucun PATCH et aucune sauvegarde.
-   */
   function updateThemeField<K extends keyof AppearanceTheme>(
     key: K,
     value: AppearanceTheme[K],
@@ -334,10 +315,6 @@ export default function AppearanceSettingsPage() {
     return null;
   }
 
-  /*
-   * Seul le clic sur le bouton Enregistrer
-   * exécute cette fonction et le PATCH.
-   */
   async function handleSave() {
     if (saving || !hasChanges) {
       return;
@@ -381,10 +358,6 @@ export default function AppearanceSettingsPage() {
 
       const updatedTheme = normalizeTheme(data ?? payload, payload);
 
-      /*
-       * Application des changements seulement
-       * après confirmation du backend.
-       */
       setDraft(updatedTheme);
       setSavedTheme(updatedTheme);
       setTheme(updatedTheme);
@@ -409,10 +382,6 @@ export default function AppearanceSettingsPage() {
     setErrorMessage("");
   }
 
-  /*
-   * Place les valeurs par défaut dans le brouillon.
-   * Un clic sur Enregistrer reste nécessaire.
-   */
   function handleResetToDefault() {
     setDraft(defaultTheme);
     setSuccessMessage("");
@@ -433,7 +402,6 @@ export default function AppearanceSettingsPage() {
 
   return (
     <div className="flex h-full min-h-0 flex-col p-5 lg:p-7">
-      {/* En-tête */}
       <header className="shrink-0">
         <div className="flex items-start gap-4">
           <div
@@ -458,10 +426,6 @@ export default function AppearanceSettingsPage() {
         </div>
       </header>
 
-      {/*
-       * Ce conteneur n’est pas un formulaire.
-       * L’enregistrement se fait uniquement par clic.
-       */}
       <div className="mt-6 min-h-0 flex-1 overflow-y-auto pr-1">
         <div className="space-y-6 pb-2">
           <SettingsSection
