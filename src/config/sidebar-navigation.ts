@@ -84,7 +84,7 @@ export const sidebarMenus: SidebarMenu[] = [
         items: [
           {
             label: "Employés",
-            href: "/dashboard/employees",
+            href: "/employees",
             icon: UsersRound,
           },
           {
