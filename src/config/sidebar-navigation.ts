@@ -160,7 +160,7 @@ export const sidebarMenus: SidebarMenu[] = [
           },
           {
             label: "Pointage",
-            href: "/dashboard/attendance",
+            href: "/attendances",
             icon: ClipboardCheck,
           },
           {
