@@ -8,6 +8,8 @@ import { getCurrentUser } from "@/lib/auth";
 
 import "./globals.css";
 
+import "@xyflow/react/dist/style.css";
+
 export const metadata: Metadata = {
   title: "SynapRH",
   description: "Système de gestion des ressources humaines",

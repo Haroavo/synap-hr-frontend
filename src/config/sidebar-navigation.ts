@@ -89,7 +89,7 @@ export const sidebarMenus: SidebarMenu[] = [
           },
           {
             label: "Organigramme",
-            href: "/dashboard/organization",
+            href: "/employees/organization-chart",
             icon: Network,
           },
           {
