@@ -5,6 +5,7 @@ import {
   BriefcaseBusiness,
   Building2,
   CalendarClock,
+  CalendarCog,
   CalendarDays,
   ChartNoAxesCombined,
   ClipboardCheck,
@@ -253,9 +254,9 @@ export const sidebarMenus: SidebarMenu[] = [
         title: "Administration",
         items: [
           {
-            label: "Paramètres RH",
-            href: "/dashboard/settings/hr",
-            icon: Settings,
+            label: "Paramètres Congés et absences",
+            href: "/settings/leave-management",
+            icon: CalendarCog,
           },
           {
             label: "Utilisateurs et rôles",
