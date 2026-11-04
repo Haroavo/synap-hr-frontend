@@ -19,6 +19,8 @@ export { FormField, type FormFieldProps } from "./form-field";
 
 export { Input, type InputProps } from "./input";
 
+export { Modal, type ModalProps } from "./modal";
+
 export { Select, type SelectProps } from "./select";
 
 export { SettingsSection, type SettingsSectionProps } from "./settings-section";

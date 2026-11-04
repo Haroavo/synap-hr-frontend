@@ -54,6 +54,10 @@ export type DataTablePagination = {
 type DataTableProps<T> = {
   title?: ReactNode;
 
+  showTitle?: boolean;
+
+  compact?: boolean;
+
   data: T[];
 
   columns: DataTableColumn<T>[];
@@ -170,6 +174,10 @@ function getVisiblePages(
 
 export function DataTable<T>({
   title = "Tous les éléments",
+
+  showTitle = true,
+
+  compact = false,
 
   data,
 
@@ -315,16 +323,15 @@ export function DataTable<T>({
     <section
       className={[
         "relative flex h-full min-h-0 flex-col",
-        "overflow-hidden rounded-[24px]",
-        "border border-slate-200/80",
+        compact ? "overflow-hidden rounded-xl" : "overflow-hidden rounded-[24px]",
+        compact ? "border border-slate-100" : "border border-slate-200/80",
         "bg-white",
-        "shadow-[0_10px_30px_rgba(15,23,42,0.05)]",
+        compact ? "shadow-sm" : "shadow-[0_10px_30px_rgba(15,23,42,0.05)]",
       ].join(" ")}
     >
-      {/* Titre */}
-      <div className="flex min-h-[70px] shrink-0 items-center px-6">
+      {showTitle && <div className="flex min-h-[70px] shrink-0 items-center px-6">
         <h2 className="text-xl font-semibold text-slate-900">{title}</h2>
-      </div>
+      </div>}
 
       {/* Tableau */}
       <div
@@ -337,7 +344,7 @@ export function DataTable<T>({
       >
         <table className="w-full min-w-max border-separate border-spacing-0">
           <thead className="sticky top-0 z-20 bg-white">
-            <tr className="h-[52px] bg-slate-50/70">
+            <tr className={compact ? "h-[42px] bg-slate-50" : "h-[52px] bg-slate-50/70"}>
               {selectable && (
                 <th className="w-[56px] border-b border-slate-100 px-4">
                   <div className="flex items-center justify-center">
@@ -364,8 +371,8 @@ export function DataTable<T>({
                   }}
                   className={[
                     "border-b border-slate-100",
-                    "px-4 py-3",
-                    "text-[12px] font-medium",
+                    compact ? "px-3 py-2" : "px-4 py-3",
+                    compact ? "text-[10px] font-semibold uppercase tracking-wide" : "text-[12px] font-medium",
                     "text-slate-500",
                     getAlignmentClass(column.align),
                     column.headerClassName ?? "",
@@ -406,7 +413,7 @@ export function DataTable<T>({
                     key={rowId}
                     onClick={() => onRowClick?.(row)}
                     className={[
-                      "group h-[62px]",
+                      compact ? "group h-[52px]" : "group h-[62px]",
                       "transition-colors",
                       "border-b border-slate-100",
                       isSelected
@@ -436,8 +443,8 @@ export function DataTable<T>({
                         key={`${rowId}-${column.id}`}
                         className={[
                           "border-b border-slate-100",
-                          "px-4 py-3",
-                          "text-[13px]",
+                          compact ? "px-3 py-2" : "px-4 py-3",
+                          compact ? "text-xs" : "text-[13px]",
                           "text-slate-800",
                           getAlignmentClass(column.align),
                           column.cellClassName ?? "",
@@ -495,7 +502,7 @@ export function DataTable<T>({
 
             <select
               value={limit}
-              disabled={loading}
+              disabled={Boolean(loading)}
               onChange={(event) => onPageSizeChange(Number(event.target.value))}
               className={[
                 "h-10 min-w-[72px]",
@@ -537,7 +544,7 @@ export function DataTable<T>({
         >
           <button
             type="button"
-            disabled={page <= 1 || loading}
+            disabled={Boolean(page <= 1 || loading)}
             onClick={() => onPageChange(page - 1)}
             className={[
               "flex h-10 items-center gap-1",
@@ -575,7 +582,7 @@ export function DataTable<T>({
               <button
                 key={visiblePage}
                 type="button"
-                disabled={loading}
+                disabled={Boolean(loading)}
                 onClick={() => onPageChange(visiblePage)}
                 className={[
                   "flex h-10 min-w-10",
@@ -605,7 +612,7 @@ export function DataTable<T>({
 
           <button
             type="button"
-            disabled={page >= safeTotalPages || loading}
+            disabled={Boolean(page >= safeTotalPages || loading)}
             onClick={() => onPageChange(page + 1)}
             className={[
               "flex h-10 items-center gap-1",

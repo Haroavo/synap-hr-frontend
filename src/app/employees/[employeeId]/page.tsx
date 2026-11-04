@@ -33,6 +33,8 @@ import {
 } from "lucide-react";
 
 import { useParams, useRouter } from "next/navigation";
+import { EditEmployeeModal } from "@/components/employees/edit-employee-modal";
+import { EditEmployeeScheduleModal } from "@/components/employees/edit-employee-schedule-modal";
 
 /*
  * ============================================================
@@ -95,6 +97,16 @@ type EmployeeInfo = {
   fullName: string;
   email?: string | null;
   phone?: string | null;
+  birthDate?: string | null;
+  address?: { street?: string; city?: string; postalCode?: string; country?: string } | null;
+  emergencyContact?: { name?: string; relationship?: string; phone?: string } | null;
+  assignmentHistory?: Array<{
+    departmentName: string; positionTitle: string; managerName?: string | null;
+    effectiveFrom: string; effectiveTo?: string | null; changedByName?: string | null; reason?: string | null;
+  }>;
+  statusHistory?: Array<{
+    status: EmployeeStatus; effectiveAt: string; changedByName?: string | null; reason?: string | null;
+  }>;
   hireDate: string;
   status: EmployeeStatus;
   profilePictureUrl?: string | null;
@@ -120,6 +132,12 @@ type ContractInfo = {
   startDate: string;
   endDate?: string | null;
   probationEndDate?: string | null;
+  weeklyHours?: number | null;
+  grossSalary?: number | null;
+  currency?: string;
+  remunerationFrequency?: "MONTHLY" | "DAILY" | "HOURLY";
+  professionalCategory?: string | null;
+  classificationIndex?: string | null;
   status: ContractStatus;
   documentUrl?: string | null;
   createdAt: string;
@@ -144,6 +162,13 @@ type ScheduleInfo = {
   timezone: string;
   active: boolean;
   days: ScheduleDay[];
+  history?: Array<{
+    effectiveFrom: string;
+    effectiveTo?: string | null;
+    reason: string;
+    changedAt?: string;
+    changedByName?: string | null;
+  }>;
 
   summary: {
     workingDays: number;
@@ -165,12 +190,25 @@ type AccountInfo = {
   updatedAt: string;
 };
 
+type EmployeePortalAccessInfo = {
+  _id: string;
+  isActivated: boolean;
+  isEnabled: boolean;
+  failedLoginAttempts: number;
+  lockedUntil?: string | null;
+  lastLoginAt?: string | null;
+  passwordChangedAt?: string | null;
+  createdAt: string;
+  updatedAt: string;
+};
+
 type EmployeeProfileResponse = {
   employee: EmployeeInfo;
   activeContract: ContractInfo | null;
   contracts: ContractInfo[];
   schedule: ScheduleInfo | null;
   account: AccountInfo | null;
+  employeeAccess: EmployeePortalAccessInfo | null;
 };
 
 /*
@@ -342,6 +380,10 @@ export default function EmployeeProfilePage() {
 
   const [error, setError] = useState<string | null>(null);
 
+  const [editModalOpen, setEditModalOpen] = useState(false);
+
+  const [scheduleModalOpen, setScheduleModalOpen] = useState(false);
+
   /*
    * ============================================================
    * CHARGEMENT DU PROFIL
@@ -417,7 +459,7 @@ export default function EmployeeProfilePage() {
     return <ProfileEmpty />;
   }
 
-  const { employee, activeContract, contracts, schedule, account } = profile;
+  const { employee, activeContract, contracts, schedule, account, employeeAccess } = profile;
 
   return (
     <div className="h-full min-h-0 overflow-auto p-5 lg:p-7">
@@ -468,7 +510,7 @@ export default function EmployeeProfilePage() {
 
           <button
             type="button"
-            onClick={() => router.push(`/employees/${employee._id}/edit`)}
+            onClick={() => setEditModalOpen(true)}
             className={[
               "flex h-10",
               "items-center gap-2",
@@ -505,7 +547,7 @@ export default function EmployeeProfilePage() {
           className={[
             "relative h-36",
             "overflow-hidden",
-            "bg-[linear-gradient(120deg,var(--color-sidebar),var(--color-primary))]",
+            "bg-[#152B3B]",
           ].join(" ")}
         >
           {/* Décorations */}
@@ -725,6 +767,36 @@ export default function EmployeeProfilePage() {
 
               <ProfileInfoCard
                 icon={<CalendarDays className="h-5 w-5" />}
+                label="Date de naissance"
+                value={formatDate(employee.birthDate)}
+                iconClassName="bg-cyan-50 text-cyan-600"
+              />
+
+              <ProfileInfoCard
+                icon={<Building2 className="h-5 w-5" />}
+                label="Adresse"
+                value={[
+                  employee.address?.street,
+                  employee.address?.city,
+                  employee.address?.postalCode,
+                  employee.address?.country,
+                ].filter(Boolean).join(", ") || "Non renseignée"}
+                iconClassName="bg-slate-100 text-slate-600"
+              />
+
+              <ProfileInfoCard
+                icon={<UsersRound className="h-5 w-5" />}
+                label="Contact d’urgence"
+                value={employee.emergencyContact?.name ?? "Non renseigné"}
+                secondary={[
+                  employee.emergencyContact?.relationship,
+                  employee.emergencyContact?.phone,
+                ].filter(Boolean).join(" · ") || undefined}
+                iconClassName="bg-emerald-50 text-emerald-600"
+              />
+
+              <ProfileInfoCard
+                icon={<CalendarDays className="h-5 w-5" />}
                 label="Date d'embauche"
                 value={formatDate(employee.hireDate)}
                 iconClassName="bg-cyan-50 text-cyan-600"
@@ -812,6 +884,41 @@ export default function EmployeeProfilePage() {
             </div>
           </ProfileSection>
 
+          <ProfileSection
+            icon={<Clock3 className="h-5 w-5" />}
+            title="Historique RH"
+            description="Les changements d’affectation et de statut sont conservés avec leur date et leur motif."
+          >
+            <div className="grid gap-4 lg:grid-cols-2">
+              <div className="rounded-xl border border-slate-100">
+                <h3 className="border-b border-slate-100 px-4 py-3 text-sm font-semibold text-slate-800">Affectations</h3>
+                <div className="divide-y divide-slate-100">
+                  {employee.assignmentHistory?.length ? [...employee.assignmentHistory].reverse().map((entry, index) => (
+                    <article key={`${entry.effectiveFrom}-${index}`} className="px-4 py-3">
+                      <p className="text-sm font-semibold text-slate-800">{entry.positionTitle} · {entry.departmentName}</p>
+                      <p className="mt-1 text-xs text-slate-500">{formatDate(entry.effectiveFrom)} → {entry.effectiveTo ? formatDate(entry.effectiveTo) : "En cours"}{entry.managerName ? ` · Responsable : ${entry.managerName}` : ""}</p>
+                      {entry.reason && <p className="mt-1 text-xs text-slate-500">{entry.reason}</p>}
+                      {entry.changedByName && <p className="mt-1 text-[10px] text-slate-400">Modifié par {entry.changedByName}</p>}
+                    </article>
+                  )) : <EmptySection text="Aucun historique d’affectation enregistré." />}
+                </div>
+              </div>
+              <div className="rounded-xl border border-slate-100">
+                <h3 className="border-b border-slate-100 px-4 py-3 text-sm font-semibold text-slate-800">Statuts</h3>
+                <div className="divide-y divide-slate-100">
+                  {employee.statusHistory?.length ? [...employee.statusHistory].reverse().map((entry, index) => (
+                    <article key={`${entry.effectiveAt}-${index}`} className="px-4 py-3">
+                      <p className="text-sm font-semibold text-slate-800">{employeeStatusLabels[entry.status]}</p>
+                      <p className="mt-1 text-xs text-slate-500">Effet au {formatDate(entry.effectiveAt)}</p>
+                      {entry.reason && <p className="mt-1 text-xs text-slate-500">{entry.reason}</p>}
+                      {entry.changedByName && <p className="mt-1 text-[10px] text-slate-400">Modifié par {entry.changedByName}</p>}
+                    </article>
+                  )) : <EmptySection text="Aucun historique de statut enregistré." />}
+                </div>
+              </div>
+            </div>
+          </ProfileSection>
+
           {/* Contrat actuel */}
 
           <ProfileSection
@@ -860,6 +967,26 @@ export default function EmployeeProfilePage() {
                   icon={<BadgeCheck className="h-4 w-4" />}
                   label="Statut du contrat"
                   value={contractStatusLabels[activeContract.status]}
+                />
+
+                <InformationItem
+                  icon={<Clock3 className="h-4 w-4" />}
+                  label="Temps hebdomadaire"
+                  value={activeContract.weeklyHours != null ? `${activeContract.weeklyHours} heures` : "Non renseigné"}
+                />
+
+                <InformationItem
+                  icon={<BriefcaseBusiness className="h-4 w-4" />}
+                  label="Catégorie professionnelle"
+                  value={activeContract.professionalCategory ?? "Non renseignée"}
+                  secondary={activeContract.classificationIndex ? `Indice ${activeContract.classificationIndex}` : undefined}
+                />
+
+                <InformationItem
+                  icon={<FileText className="h-4 w-4" />}
+                  label="Rémunération de référence"
+                  value={activeContract.grossSalary != null ? `${new Intl.NumberFormat("fr-FR").format(activeContract.grossSalary)} ${activeContract.currency ?? "MGA"}` : "Non renseignée"}
+                  secondary={activeContract.remunerationFrequency === "HOURLY" ? "Par heure" : activeContract.remunerationFrequency === "DAILY" ? "Par jour" : "Par mois"}
                 />
 
                 {activeContract.documentUrl && (
@@ -987,7 +1114,7 @@ export default function EmployeeProfilePage() {
 
           <ProfileSection
             icon={<ShieldCheck className="h-5 w-5" />}
-            title="Compte utilisateur"
+            title="Compte back-office"
             description="Accès et sécurité du compte."
           >
             {account ? (
@@ -1029,7 +1156,55 @@ export default function EmployeeProfilePage() {
                 />
               </div>
             ) : (
-              <EmptySection text="Cet employé ne possède pas de compte utilisateur." />
+              <EmptySection text="Aucun compte d’administration n’est associé à cet employé." />
+            )}
+          </ProfileSection>
+
+          <ProfileSection
+            icon={<BadgeCheck className="h-5 w-5" />}
+            title="Accès portail employé"
+            description="Compte utilisé sur SynapRH Employee."
+          >
+            {employeeAccess ? (
+              <div className="space-y-4">
+                <InformationItem
+                  icon={<Mail className="h-4 w-4" />}
+                  label="Adresse de connexion"
+                  value={employee.email ?? "—"}
+                />
+
+                <BooleanInformation
+                  label="Accès autorisé"
+                  value={employeeAccess.isEnabled && employeeAccess.isActivated && employee.status === "ACTIVE"}
+                />
+
+                <BooleanInformation
+                  label="Compte activé"
+                  value={employeeAccess.isActivated}
+                />
+
+                <InformationItem
+                  icon={<LogIn className="h-4 w-4" />}
+                  label="Dernière connexion"
+                  value={formatDateTime(employeeAccess.lastLoginAt)}
+                />
+
+                <InformationItem
+                  icon={<KeyRound className="h-4 w-4" />}
+                  label="Mot de passe modifié"
+                  value={formatDateTime(employeeAccess.passwordChangedAt)}
+                />
+
+                {employeeAccess.lockedUntil && (
+                  <InformationItem
+                    icon={<ShieldCheck className="h-4 w-4" />}
+                    label="Compte verrouillé jusqu’au"
+                    value={formatDateTime(employeeAccess.lockedUntil)}
+                  />
+                )}
+              </div>
+            ) : (
+              <EmptySection text="Aucun accès au portail employé n’est provisionné pour cette personne." />
             )}
           </ProfileSection>
 
@@ -1042,6 +1217,16 @@ export default function EmployeeProfilePage() {
           >
             {schedule ? (
               <>
+                <div className="mb-4 flex justify-end">
+                  <button
+                    type="button"
+                    onClick={() => setScheduleModalOpen(true)}
+                    className="inline-flex h-9 items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 text-xs font-semibold text-slate-700 transition hover:border-app-primary/30 hover:bg-slate-50"
+                  >
+                    <Pencil className="h-3.5 w-3.5" />
+                    Modifier le planning
+                  </button>
+                </div>
                 <div className="grid grid-cols-2 gap-3">
                   <SmallMetric
                     label="Jours travaillés"
@@ -1102,6 +1287,24 @@ export default function EmployeeProfilePage() {
                   })}
                 </div>
 
+                {!!schedule.history?.length && (
+                  <div className="mt-5 rounded-2xl border border-slate-200 bg-white p-4">
+                    <h3 className="text-xs font-semibold uppercase tracking-wide text-slate-500">Historique des changements</h3>
+                    <div className="mt-3 space-y-3">
+                      {[...schedule.history]
+                        .sort((left, right) => new Date(right.effectiveFrom).getTime() - new Date(left.effectiveFrom).getTime())
+                        .slice(0, 4)
+                        .map((revision, index) => (
+                          <div key={`${revision.effectiveFrom}-${index}`} className="border-l-2 border-app-primary/25 pl-3">
+                            <p className="text-xs font-semibold text-slate-700">Applicable dès le {formatDate(revision.effectiveFrom)}</p>
+                            <p className="mt-1 text-xs leading-5 text-slate-600">{revision.reason}</p>
+                            {revision.changedByName && <p className="mt-1 text-[11px] text-slate-400">Modifié par {revision.changedByName}</p>}
+                          </div>
+                        ))}
+                    </div>
+                  </div>
+                )}
+
                 <button
                   type="button"
                   onClick={() =>
@@ -1159,6 +1362,21 @@ export default function EmployeeProfilePage() {
           </ProfileSection>
         </div>
       </div>
+      <EditEmployeeModal
+        open={editModalOpen}
+        employee={employee}
+        onClose={() => setEditModalOpen(false)}
+        onUpdated={() => void loadProfile()}
+      />
+      {schedule && (
+        <EditEmployeeScheduleModal
+          open={scheduleModalOpen}
+          employeeId={employee._id}
+          initialDays={schedule.days}
+          onClose={() => setScheduleModalOpen(false)}
+          onSaved={() => void loadProfile()}
+        />
+      )}
     </div>
   );
 }

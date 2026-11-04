@@ -1,5 +1,6 @@
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
+import { proxyBackOfficeApi } from "@/lib/server/backoffice-api-proxy";
 
 const ACCESS_TOKEN_COOKIE = "synaprh_access_token";
 
@@ -27,6 +28,11 @@ async function parseResponse(response: Response): Promise<unknown> {
   return {
     message: text || "La réponse du serveur est invalide.",
   };
+}
+
+export function GET(request: Request) {
+  const query = new URL(request.url).searchParams.toString();
+  return proxyBackOfficeApi(`/attendances${query ? `?${query}` : ""}`, { method: "GET" });
 }
 
 /*

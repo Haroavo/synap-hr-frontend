@@ -117,7 +117,7 @@ export async function POST(request: Request) {
 
     const expiresIn = Number(data.expiresIn);
     const cookieDuration =
-      Number.isFinite(expiresIn) && expiresIn > 0 ? expiresIn : 900;
+      Number.isFinite(expiresIn) && expiresIn > 0 ? expiresIn : 604800;
 
     const response = NextResponse.json(
       {

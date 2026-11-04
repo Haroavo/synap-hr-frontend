@@ -1,13 +1,14 @@
 "use client";
 
 import {
+  isSubMenuItemActive,
   sidebarMenus,
   type SidebarMenu,
   type SubMenuItem,
 } from "@/config/sidebar-navigation";
 import { synapTheme } from "@/config/theme";
 
-import { ChevronRight, Home } from "lucide-react";
+import { ChevronRight, Home, Menu } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
@@ -15,14 +16,6 @@ type CurrentNavigation = {
   parentMenu: SidebarMenu | null;
   currentItem: SubMenuItem | null;
 };
-
-function routeMatches(pathname: string, href: string): boolean {
-  if (href === "/dashboard") {
-    return pathname === href;
-  }
-
-  return pathname === href || pathname.startsWith(`${href}/`);
-}
 
 function getCurrentNavigation(pathname: string): CurrentNavigation {
   let selectedMenu: SidebarMenu | null = null;
@@ -33,7 +26,7 @@ function getCurrentNavigation(pathname: string): CurrentNavigation {
     for (const section of menu.sections) {
       for (const item of section.items) {
         if (
-          routeMatches(pathname, item.href) &&
+          isSubMenuItemActive(pathname, item) &&
           item.href.length > longestMatchingPath
         ) {
           selectedMenu = menu;
@@ -57,7 +50,7 @@ function formatPathSegment(segment: string): string {
     .replace(/\b\w/g, (letter) => letter.toUpperCase());
 }
 
-export function AppNavbar() {
+export function AppNavbar({ onOpenNavigation }: { onOpenNavigation: () => void }) {
   const pathname = usePathname();
 
   const { parentMenu, currentItem } = getCurrentNavigation(pathname);
@@ -73,6 +66,15 @@ export function AppNavbar() {
         borderColor: synapTheme.border,
       }}
     >
+      <button
+        type="button"
+        aria-label="Ouvrir la navigation"
+        onClick={onOpenNavigation}
+        className="mr-2 flex h-9 w-9 shrink-0 items-center justify-center rounded-xl text-slate-500 transition hover:bg-[#EAF5F1] hover:text-[#16775C] lg:hidden"
+      >
+        <Menu className="h-5 w-5" />
+      </button>
+
       <nav
         aria-label="Fil d’Ariane"
         className="flex min-w-0 items-center gap-2"
@@ -80,7 +82,7 @@ export function AppNavbar() {
         <Link
           href="/dashboard"
           aria-label="Accueil"
-          className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-slate-400 transition hover:bg-[#EAF6FF] hover:text-[#218BE4]"
+          className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-slate-400 transition hover:bg-[#EAF5F1] hover:text-[#16775C]"
         >
           <Home className="h-[17px] w-[17px]" strokeWidth={1.8} />
         </Link>
