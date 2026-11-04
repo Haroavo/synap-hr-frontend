@@ -1,42 +1,55 @@
 import type { LucideIcon } from "lucide-react";
 
 import {
-  BarChart3,
   BriefcaseBusiness,
   Building2,
-  CalendarClock,
+  CalendarCog,
   CalendarDays,
+  CalendarClock,
+  CalendarRange,
   ChartNoAxesCombined,
   ClipboardCheck,
-  ContactRound,
-  FileBadge2,
   FileText,
-  FolderKanban,
-  KeyRound,
-  Landmark,
   LayoutDashboard,
   Network,
-  ReceiptText,
+  Palette,
   Settings,
-  ShieldCheck,
-  Tags,
-  TimerReset,
-  UserCog,
   UsersRound,
-  WalletCards,
 } from "lucide-react";
 
 export type CompanyBrand = {
   name: string;
   logoUrl?: string | null;
-  primaryColor?: string;
 };
 
 export type SubMenuItem = {
   label: string;
   href: string;
   icon: LucideIcon;
+  activePathPatterns?: string[];
 };
+
+export function isSubMenuItemActive(pathname: string, item: SubMenuItem): boolean {
+  const normalizedPath = pathname.replace(/\/+$/, "") || "/";
+  const hrefMatches = item.href === "/dashboard"
+    ? normalizedPath === item.href
+    : normalizedPath === item.href || normalizedPath.startsWith(`${item.href}/`);
+
+  if (hrefMatches) return true;
+
+  return isSubMenuItemPatternActive(normalizedPath, item);
+}
+
+export function isSubMenuItemPatternActive(pathname: string, item: SubMenuItem): boolean {
+  const normalizedPath = pathname.replace(/\/+$/, "") || "/";
+  return (item.activePathPatterns ?? []).some((pattern) => {
+    const expression = pattern
+      .split("/")
+      .map((segment) => segment.startsWith(":") ? "[^/]+" : segment.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"))
+      .join("/");
+    return new RegExp(`^${expression}$`).test(normalizedPath);
+  });
+}
 
 export type SubMenuSection = {
   title: string;
@@ -57,211 +70,85 @@ export const sidebarMenus: SidebarMenu[] = [
     icon: LayoutDashboard,
     sections: [
       {
-        title: "Aperçu",
+        title: "Pilotage",
         items: [
-          {
-            label: "Tableau de bord",
-            href: "/dashboard",
-            icon: LayoutDashboard,
-          },
-          {
-            label: "Analyses RH",
-            href: "/dashboard/analytics",
-            icon: ChartNoAxesCombined,
-          },
+          { label: "Vue d’ensemble", href: "/dashboard", icon: LayoutDashboard },
+          { label: "Analyses RH", href: "/dashboard/analytics", icon: ChartNoAxesCombined },
         ],
       },
     ],
   },
-
   {
     id: "employees",
-    label: "Employés",
+    label: "Personnel",
     icon: UsersRound,
     sections: [
       {
         title: "Gestion du personnel",
         items: [
-          {
-            label: "Employés",
-            href: "/dashboard/employees",
-            icon: UsersRound,
-          },
-          {
-            label: "Organigramme",
-            href: "/dashboard/organization",
-            icon: Network,
-          },
-          {
-            label: "Contrats",
-            href: "/dashboard/contracts",
-            icon: FileBadge2,
-          },
-          {
-            label: "Dossiers employés",
-            href: "/dashboard/employee-files",
-            icon: ContactRound,
-          },
+          { label: "Employés", href: "/employees", icon: UsersRound },
+          { label: "Organigramme", href: "/employees/organization-chart", icon: Network },
         ],
       },
-    ],
-  },
-
-  {
-    id: "company",
-    label: "Structure de l’entreprise",
-    icon: Building2,
-    sections: [
       {
-        title: "Structure de l’entreprise",
+        title: "Administration RH",
         items: [
-          {
-            label: "Départements",
-            href: "/dashboard/departments",
-            icon: Building2,
-          },
-          {
-            label: "Postes",
-            href: "/dashboard/positions",
-            icon: BriefcaseBusiness,
-          },
-          {
-            label: "Natures de contrat",
-            href: "/dashboard/contract-types",
-            icon: FileText,
-          },
-          {
-            label: "Catégories professionnelles",
-            href: "/dashboard/professional-categories",
-            icon: Tags,
-          },
-          {
-            label: "Horaires de travail",
-            href: "/dashboard/work-schedules",
-            icon: CalendarClock,
-          },
+          { label: "Contrats", href: "/contracts", icon: FileText },
         ],
       },
     ],
   },
-
   {
     id: "attendance",
     label: "Temps et absences",
     icon: CalendarDays,
     sections: [
       {
-        title: "Temps et activités",
+        title: "Suivi du temps",
         items: [
+          { label: "Calendrier RH", href: "/dashboard/calendar", icon: CalendarClock },
           {
-            label: "Congés et absences",
-            href: "/dashboard/leave",
-            icon: CalendarDays,
+            label: "Planning des employés",
+            href: "/employee-schedules",
+            icon: CalendarRange,
+            activePathPatterns: ["/employees/:employeeId/schedule"],
           },
-          {
-            label: "Pointage",
-            href: "/dashboard/attendance",
-            icon: ClipboardCheck,
-          },
-          {
-            label: "Calendrier",
-            href: "/dashboard/calendar",
-            icon: CalendarClock,
-          },
-          {
-            label: "Historique",
-            href: "/dashboard/attendance-history",
-            icon: TimerReset,
-          },
+          { label: "Pointages", href: "/attendances", icon: ClipboardCheck },
+          { label: "Congés et absences", href: "/leave-management/requests", icon: CalendarDays },
         ],
       },
     ],
   },
-
   {
-    id: "payroll",
-    label: "Paie",
-    icon: WalletCards,
+    id: "company",
+    label: "Structure de l’entreprise",
+    icon: Building2,
     sections: [
       {
-        title: "Gestion de la paie",
+        title: "Référentiel entreprise",
         items: [
-          {
-            label: "Bulletins de paie",
-            href: "/dashboard/payroll",
-            icon: ReceiptText,
-          },
-          {
-            label: "Variables de paie",
-            href: "/dashboard/payroll-variables",
-            icon: BarChart3,
-          },
-          {
-            label: "Historique des paiements",
-            href: "/dashboard/payroll-history",
-            icon: Landmark,
-          },
+          { label: "Départements", href: "/dashboard/departments", icon: Building2 },
+          { label: "Postes", href: "/dashboard/positions", icon: BriefcaseBusiness },
+          { label: "Types de contrat", href: "/dashboard/contract-types", icon: FileText },
         ],
       },
     ],
   },
-
-  {
-    id: "documents",
-    label: "Documents",
-    icon: FolderKanban,
-    sections: [
-      {
-        title: "Documents RH",
-        items: [
-          {
-            label: "Documents employés",
-            href: "/dashboard/documents",
-            icon: FolderKanban,
-          },
-          {
-            label: "Modèles de documents",
-            href: "/dashboard/document-templates",
-            icon: FileText,
-          },
-        ],
-      },
-    ],
-  },
-
   {
     id: "settings",
     label: "Paramètres",
     icon: Settings,
     sections: [
       {
-        title: "Administration",
+        title: "Préférences",
         items: [
-          {
-            label: "Paramètres RH",
-            href: "/dashboard/settings/hr",
-            icon: Settings,
-          },
-          {
-            label: "Informations entreprise",
-            href: "/dashboard/settings/company",
-            icon: Building2,
-          },
-          {
-            label: "Utilisateurs et rôles",
-            href: "/dashboard/settings/users",
-            icon: UserCog,
-          },
-          {
-            label: "Sécurité",
-            href: "/dashboard/settings/security",
-            icon: ShieldCheck,
-          },
-          {
-            label: "Autorisations",
-            href: "/dashboard/settings/permissions",
-            icon: KeyRound,
-          },
+          { label: "Apparence", href: "/settings/appearance", icon: Palette },
+        ],
+      },
+      {
+        title: "Règles RH",
+        items: [
+          { label: "Gestion des congés et absences", href: "/settings/leave-management", icon: CalendarCog },
         ],
       },
     ],

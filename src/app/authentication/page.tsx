@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { FormEvent, useState } from "react";
 import { useRouter } from "next/navigation";
+import { authApi } from "@/API";
 
 import {
   ArrowRight,
@@ -33,16 +34,7 @@ export default function AuthenticationPage() {
     setError("");
 
     try {
-      const response = await fetch("/api/auth/login", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          username: identifier,
-          password,
-        }),
-      });
+      const response = await authApi.login({ username: identifier, password });
 
       const data = (await response.json().catch(() => null)) as {
         message?: string;
@@ -75,14 +67,6 @@ export default function AuthenticationPage() {
     <main className="h-[100dvh] w-full overflow-hidden bg-white">
       <div className="grid h-full w-full grid-cols-1 lg:grid-cols-[36%_64%]">
         <section className="relative flex h-full min-h-0 w-full items-center justify-center overflow-hidden bg-white px-7 py-5 lg:px-10">
-          <div
-            className="pointer-events-none absolute inset-0 opacity-40"
-            style={{
-              backgroundImage:
-                "radial-gradient(circle, rgba(76,184,233,0.18) 1.2px, transparent 1.2px)",
-              backgroundSize: "22px 22px",
-            }}
-          />
 
           <div className="relative z-10 w-full max-w-[380px]">
             <div className="mb-4 flex justify-center">
@@ -99,14 +83,14 @@ export default function AuthenticationPage() {
             </div>
 
             <div className="mb-4 flex justify-center">
-              <div className="inline-flex items-center gap-2 rounded-full border border-[#4cb8e9]/30 bg-[#edf8fe] px-4 py-2 text-xs font-medium text-[#218be4]">
+              <div className="inline-flex items-center gap-2 rounded-full border border-[#53A786]/30 bg-[#EAF5F1] px-4 py-2 text-xs font-medium text-[#16775C]">
                 <ShieldCheck className="h-4 w-4" strokeWidth={2} />
                 <span>Espace administrateur</span>
               </div>
             </div>
 
             <div className="mb-6 text-center">
-              <h1 className="text-2xl font-bold tracking-tight text-[#071b3d]">
+              <h1 className="text-2xl font-bold tracking-tight text-[#152B3B]">
                 Connexion
               </h1>
 
@@ -128,14 +112,14 @@ export default function AuthenticationPage() {
               <div>
                 <label
                   htmlFor="identifier"
-                  className="mb-2 block text-sm font-semibold text-[#071b3d]"
+                  className="mb-2 block text-sm font-semibold text-[#152B3B]"
                 >
                   Identifiant
                 </label>
 
                 <div className="group relative">
                   <UserRound
-                    className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400 transition group-focus-within:text-[#218be4]"
+                    className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400 transition group-focus-within:text-[#16775C]"
                     strokeWidth={1.8}
                   />
 
@@ -149,7 +133,7 @@ export default function AuthenticationPage() {
                     onChange={(event) => setIdentifier(event.target.value)}
                     disabled={loading}
                     required
-                    className="h-12 w-full rounded-xl border border-slate-200 bg-[#fbfdff] pl-12 pr-4 text-sm text-[#071b3d] outline-none transition placeholder:text-slate-400 hover:border-[#4cb8e9]/70 focus:border-[#218be4] focus:bg-white focus:ring-4 focus:ring-[#218be4]/10 disabled:cursor-not-allowed disabled:opacity-60"
+                    className="h-12 w-full rounded-xl border border-slate-200 bg-[#F7FAF9] pl-12 pr-4 text-sm text-[#152B3B] outline-none transition placeholder:text-slate-400 hover:border-[#53A786]/70 focus:border-[#16775C] focus:bg-white focus:ring-4 focus:ring-[#16775C]/10 disabled:cursor-not-allowed disabled:opacity-60"
                   />
                 </div>
               </div>
@@ -157,14 +141,14 @@ export default function AuthenticationPage() {
               <div>
                 <label
                   htmlFor="password"
-                  className="mb-2 block text-sm font-semibold text-[#071b3d]"
+                  className="mb-2 block text-sm font-semibold text-[#152B3B]"
                 >
                   Mot de passe
                 </label>
 
                 <div className="group relative">
                   <LockKeyhole
-                    className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400 transition group-focus-within:text-[#218be4]"
+                    className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400 transition group-focus-within:text-[#16775C]"
                     strokeWidth={1.8}
                   />
 
@@ -178,7 +162,7 @@ export default function AuthenticationPage() {
                     onChange={(event) => setPassword(event.target.value)}
                     disabled={loading}
                     required
-                    className="h-12 w-full rounded-xl border border-slate-200 bg-[#fbfdff] pl-12 pr-12 text-sm text-[#071b3d] outline-none transition placeholder:text-slate-400 hover:border-[#4cb8e9]/70 focus:border-[#218be4] focus:bg-white focus:ring-4 focus:ring-[#218be4]/10 disabled:cursor-not-allowed disabled:opacity-60"
+                    className="h-12 w-full rounded-xl border border-slate-200 bg-[#F7FAF9] pl-12 pr-12 text-sm text-[#152B3B] outline-none transition placeholder:text-slate-400 hover:border-[#53A786]/70 focus:border-[#16775C] focus:bg-white focus:ring-4 focus:ring-[#16775C]/10 disabled:cursor-not-allowed disabled:opacity-60"
                   />
 
                   <button
@@ -189,7 +173,7 @@ export default function AuthenticationPage() {
                         : "Afficher le mot de passe"
                     }
                     onClick={() => setShowPassword((value) => !value)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 rounded-lg p-2 text-slate-400 transition hover:bg-[#eef6ff] hover:text-[#218be4]"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 rounded-lg p-2 text-slate-400 transition hover:bg-[#EAF5F1] hover:text-[#16775C]"
                   >
                     {showPassword ? (
                       <EyeOff className="h-5 w-5" strokeWidth={1.8} />
@@ -203,7 +187,7 @@ export default function AuthenticationPage() {
               <div className="flex justify-end">
                 <a
                   href="/forgot-password"
-                  className="text-sm font-medium text-[#218be4] transition hover:text-[#071b3d] hover:underline"
+                  className="text-sm font-medium text-[#16775C] transition hover:text-[#152B3B] hover:underline"
                 >
                   Mot de passe oublié ?
                 </a>
@@ -212,7 +196,7 @@ export default function AuthenticationPage() {
               <button
                 type="submit"
                 disabled={loading}
-                className="group flex h-12 w-full items-center justify-center gap-3 rounded-xl bg-gradient-to-r from-[#4cb8e9] to-[#218be4] px-5 text-sm font-semibold text-white transition duration-300 hover:from-[#38abe2] hover:to-[#167bd3] active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:from-[#4cb8e9] disabled:hover:to-[#218be4]"
+                className="group flex h-12 w-full items-center justify-center gap-3 rounded-xl bg-[#16775C] px-5 text-sm font-semibold text-white transition hover:bg-[#12664E] active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-60"
               >
                 <span>{loading ? "Connexion..." : "Se connecter"}</span>
 

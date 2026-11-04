@@ -4,6 +4,7 @@ import { LoaderCircle, LogOut } from "lucide-react";
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { authApi } from "@/API";
 
 export function LogoutButton() {
   const router = useRouter();
@@ -20,9 +21,7 @@ export function LogoutButton() {
     setError("");
 
     try {
-      const response = await fetch("/api/auth/logout", {
-        method: "POST",
-      });
+      const response = await authApi.logout();
 
       if (!response.ok) {
         throw new Error("La déconnexion a échoué.");
@@ -67,10 +66,10 @@ export function LogoutButton() {
         )}
       </button>
 
-      <span className="pointer-events-none absolute bottom-1/2 left-[58px] z-50 translate-y-1/2 whitespace-nowrap rounded-lg bg-[#071B3D] px-3 py-2 text-xs font-medium text-white opacity-0 shadow-lg transition group-hover/logout:opacity-100">
+      <span className="pointer-events-none absolute bottom-1/2 left-[58px] z-50 translate-y-1/2 whitespace-nowrap rounded-lg bg-[#152B3B] px-3 py-2 text-xs font-medium text-white opacity-0 shadow-lg transition group-hover/logout:opacity-100">
         {loading ? "Déconnexion..." : "Se déconnecter"}
 
-        <span className="absolute right-full top-1/2 -translate-y-1/2 border-y-[5px] border-r-[6px] border-y-transparent border-r-[#071B3D]" />
+        <span className="absolute right-full top-1/2 -translate-y-1/2 border-y-[5px] border-r-[6px] border-y-transparent border-r-[#152B3B]" />
       </span>
 
       {error && (

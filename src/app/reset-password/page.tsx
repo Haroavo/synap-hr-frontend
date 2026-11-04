@@ -11,6 +11,7 @@ import {
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { FormEvent, Suspense, useState } from "react";
+import { authApi } from "@/API";
 
 function ResetPasswordForm() {
   const searchParams = useSearchParams();
@@ -48,16 +49,7 @@ function ResetPasswordForm() {
     setLoading(true);
 
     try {
-      const response = await fetch("/api/auth/reset-password", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          token,
-          newPassword,
-        }),
-      });
+      const response = await authApi.resetPassword({ token, newPassword });
 
       const data = (await response.json()) as {
         message?: string;
@@ -90,7 +82,7 @@ function ResetPasswordForm() {
               <CheckCircle2 className="h-8 w-8 text-green-600" />
             </div>
 
-            <h1 className="mt-5 text-2xl font-bold text-[#071b3d]">
+            <h1 className="mt-5 text-2xl font-bold text-[#152B3B]">
               Mot de passe modifié
             </h1>
 
@@ -101,7 +93,7 @@ function ResetPasswordForm() {
 
             <Link
               href="/authentication"
-              className="mt-6 flex h-12 items-center justify-center rounded-xl bg-[#218be4] text-sm font-semibold text-white"
+              className="mt-6 flex h-12 items-center justify-center rounded-xl bg-[#16775C] text-sm font-semibold text-white"
             >
               Se connecter
             </Link>
@@ -109,10 +101,10 @@ function ResetPasswordForm() {
         ) : (
           <>
             <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-[#eaf7fd]">
-              <KeyRound className="h-7 w-7 text-[#218be4]" />
+              <KeyRound className="h-7 w-7 text-[#16775C]" />
             </div>
 
-            <h1 className="mt-5 text-2xl font-bold text-[#071b3d]">
+            <h1 className="mt-5 text-2xl font-bold text-[#152B3B]">
               Nouveau mot de passe
             </h1>
 
@@ -124,7 +116,7 @@ function ResetPasswordForm() {
               <div>
                 <label
                   htmlFor="newPassword"
-                  className="mb-2 block text-sm font-semibold text-[#071b3d]"
+                  className="mb-2 block text-sm font-semibold text-[#152B3B]"
                 >
                   Nouveau mot de passe
                 </label>
@@ -138,7 +130,7 @@ function ResetPasswordForm() {
                     required
                     minLength={8}
                     disabled={loading}
-                    className="h-12 w-full rounded-xl border border-slate-200 px-4 pr-12 text-sm outline-none focus:border-[#218be4] focus:ring-4 focus:ring-[#218be4]/10"
+                    className="h-12 w-full rounded-xl border border-slate-200 px-4 pr-12 text-sm outline-none focus:border-[#16775C] focus:ring-4 focus:ring-[#16775C]/10"
                   />
 
                   <button
@@ -158,7 +150,7 @@ function ResetPasswordForm() {
               <div>
                 <label
                   htmlFor="confirmation"
-                  className="mb-2 block text-sm font-semibold text-[#071b3d]"
+                  className="mb-2 block text-sm font-semibold text-[#152B3B]"
                 >
                   Confirmer le mot de passe
                 </label>
@@ -171,7 +163,7 @@ function ResetPasswordForm() {
                   required
                   minLength={8}
                   disabled={loading}
-                  className="h-12 w-full rounded-xl border border-slate-200 px-4 text-sm outline-none focus:border-[#218be4] focus:ring-4 focus:ring-[#218be4]/10"
+                  className="h-12 w-full rounded-xl border border-slate-200 px-4 text-sm outline-none focus:border-[#16775C] focus:ring-4 focus:ring-[#16775C]/10"
                 />
               </div>
 
@@ -184,7 +176,7 @@ function ResetPasswordForm() {
               <button
                 type="submit"
                 disabled={loading}
-                className="flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#4cb8e9] to-[#218be4] text-sm font-semibold text-white disabled:opacity-60"
+                className="flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-[#16775C] text-sm font-semibold text-white transition hover:bg-[#12664E] disabled:opacity-60"
               >
                 {loading && <LoaderCircle className="h-5 w-5 animate-spin" />}
 
@@ -203,7 +195,7 @@ export default function ResetPasswordPage() {
     <Suspense
       fallback={
         <main className="flex min-h-dvh items-center justify-center bg-[#f4f8fd]">
-          <LoaderCircle className="h-8 w-8 animate-spin text-[#218be4]" />
+          <LoaderCircle className="h-8 w-8 animate-spin text-[#16775C]" />
         </main>
       }
     >
