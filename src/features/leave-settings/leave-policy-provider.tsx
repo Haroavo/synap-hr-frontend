@@ -23,6 +23,7 @@ import {
   normalizeApiPolicy,
   validateLeavePolicy,
 } from "./leave-policy";
+import { leavePoliciesApi } from "@/API";
 
 type LeavePolicyContextValue = {
   form: LeavePolicyForm;
@@ -88,10 +89,7 @@ export function LeavePolicyProvider({ children }: { children: ReactNode }) {
       setSuccess(null);
       setValidationErrors({});
 
-      const response = await fetch("/api/leave-policies/current", {
-        method: "GET",
-        cache: "no-store",
-      });
+      const response = await leavePoliciesApi.current();
 
       const data = (await response.json().catch(() => null)) as
         | LeavePolicyResponse
@@ -201,15 +199,7 @@ export function LeavePolicyProvider({ children }: { children: ReactNode }) {
 
       setSuccess(null);
 
-      const response = await fetch("/api/leave-policies/current", {
-        method: "PUT",
-
-        headers: {
-          "Content-Type": "application/json",
-        },
-
-        body: JSON.stringify(payload),
-      });
+      const response = await leavePoliciesApi.updateCurrent(payload);
 
       const data = (await response.json().catch(() => null)) as
         | LeavePolicyResponse

@@ -767,7 +767,7 @@ function ColorSettingCard({
           type="text"
           value={value}
           onChange={(event) => onChange(event.target.value)}
-          placeholder="#218BE4"
+          placeholder="#16775C"
           maxLength={7}
           disabled={disabled}
           className={[

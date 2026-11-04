@@ -37,6 +37,8 @@ import { useLeavePolicy } from "@/features/leave-settings/leave-policy-provider"
 
 import { LeaveSettingsLoader } from "@/features/leave-settings/leave-settings-shell";
 
+import { leavePoliciesApi } from "@/API/leave-policies.api";
+
 /*
  * ============================================================
  * FORMATAGE
@@ -217,22 +219,14 @@ export default function LeavePolicySimulationPage() {
     try {
       setSimulating(true);
 
-      const response = await fetch("/api/leave-policies/simulate", {
-        method: "POST",
+      const response = await leavePoliciesApi.simulate({
+        policy: policyPayload,
 
-        headers: {
-          "Content-Type": "application/json",
-        },
+        hireDate,
 
-        body: JSON.stringify({
-          policy: policyPayload,
+        calculationDate,
 
-          hireDate,
-
-          calculationDate,
-
-          contractEndDate: contractEndDate || null,
-        }),
+        contractEndDate: contractEndDate || null,
       });
 
       const data = (await response.json().catch(() => null)) as

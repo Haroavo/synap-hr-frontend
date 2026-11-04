@@ -27,14 +27,14 @@ export const defaultTheme: AppearanceTheme = {
   companyName: "SynapRH",
   logoUrl: "/images/synaphr-logo.png",
 
-  primaryColor: "#218BE4",
-  secondaryColor: "#4CB8E9",
-  sidebarColor: "#071B3D",
-  backgroundColor: "#F6F9FF",
+  primaryColor: "#16775C",
+  secondaryColor: "#53A786",
+  sidebarColor: "#152B3B",
+  backgroundColor: "#F4F7F6",
   surfaceColor: "#FFFFFF",
-  textColor: "#071B3D",
-  mutedTextColor: "#64748B",
-  borderColor: "#DCEAFB",
+  textColor: "#152B3B",
+  mutedTextColor: "#71838D",
+  borderColor: "#E4EBE8",
 };
 
 type ThemeContextValue = {

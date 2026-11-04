@@ -21,6 +21,7 @@ import {
   UserRound,
   X,
 } from "lucide-react";
+import { AttendanceRecords } from "@/components/attendances/attendance-records";
 
 type AttendanceType = "ENTER" | "EXIT";
 
@@ -108,6 +109,7 @@ export default function AttendancePage() {
 
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
+  const [recordsRefreshKey, setRecordsRefreshKey] = useState(0);
 
   const activeEmployees = useMemo(() => {
     return employees
@@ -393,6 +395,7 @@ export default function AttendancePage() {
       setSuccess(
         `${employeeName} : ${attendanceLabel} enregistrée avec succès.`,
       );
+      setRecordsRefreshKey((current) => current + 1);
 
       setForm((currentForm) => ({
         employeeId: "",
@@ -430,7 +433,8 @@ export default function AttendancePage() {
         </p>
       </header>
 
-      <main className="mx-auto max-w-3xl">
+      <main className="mx-auto w-full max-w-6xl">
+        <div className="max-w-3xl">
         <form
           onSubmit={(event) => void handleSubmit(event)}
           className={[
@@ -869,6 +873,8 @@ export default function AttendancePage() {
             </button>
           </div>
         </form>
+        </div>
+        <AttendanceRecords refreshKey={recordsRefreshKey} />
       </main>
     </div>
   );

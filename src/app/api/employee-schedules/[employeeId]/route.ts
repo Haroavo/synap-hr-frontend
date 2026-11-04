@@ -1,6 +1,7 @@
 import { cookies } from "next/headers";
 
 import { type NextRequest, NextResponse } from "next/server";
+import { proxyBackOfficeApi } from "@/lib/server/backoffice-api-proxy";
 
 const COOKIE_NAME = "synaprh_access_token";
 
@@ -72,4 +73,19 @@ export async function GET(_request: NextRequest, context: RouteContext) {
       },
     );
   }
+}
+
+export async function PATCH(request: NextRequest, context: RouteContext) {
+  const { employeeId } = await context.params;
+  let body: unknown;
+  try {
+    body = await request.json();
+  } catch {
+    return NextResponse.json({ message: "Les données envoyées sont invalides." }, { status: 400 });
+  }
+  return proxyBackOfficeApi(`/employee-schedules/${encodeURIComponent(employeeId)}`, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+  });
 }

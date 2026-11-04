@@ -1,15 +1,15 @@
 export const synapTheme = {
-  navy: "#071B3D",
-  darkBlue: "#0B2554",
-  blue: "#218BE4",
-  cyan: "#4CB8E9",
+  navy: "#152B3B",
+  darkBlue: "#1E3B4C",
+  blue: "#16775C",
+  cyan: "#53A786",
 
-  background: "#F6F9FF",
-  activeBackground: "#EAF6FF",
-  softBackground: "#F0F8FF",
+  background: "#F4F7F6",
+  activeBackground: "#EAF5F1",
+  softBackground: "#F7FAF9",
 
-  border: "#DCEAFB",
+  border: "#E4EBE8",
 
-  text: "#071B3D",
-  mutedText: "#64748B",
+  text: "#152B3B",
+  mutedText: "#71838D",
 } as const;

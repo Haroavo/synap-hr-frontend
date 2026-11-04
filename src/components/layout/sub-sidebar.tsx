@@ -1,6 +1,6 @@
 "use client";
 
-import type { CompanyBrand, SidebarMenu } from "@/config/sidebar-navigation";
+import { isSubMenuItemActive, type CompanyBrand, type SidebarMenu } from "@/config/sidebar-navigation";
 
 import { synapTheme } from "@/config/theme";
 
@@ -17,14 +17,6 @@ type SubSidebarProps = {
 
   onToggle: () => void;
 };
-
-function pathIsActive(pathname: string, href: string): boolean {
-  if (href === "/dashboard") {
-    return pathname === href;
-  }
-
-  return pathname === href || pathname.startsWith(`${href}/`);
-}
 
 function getCompanyInitials(companyName: string): string {
   return companyName
@@ -51,7 +43,7 @@ export function SubSidebar({
   return (
     <aside
       className={[
-        "relative z-30 flex h-dvh shrink-0 flex-col border-r bg-white",
+        "relative z-30 hidden h-dvh shrink-0 flex-col border-r bg-white lg:flex",
         "transition-[width] duration-300 ease-in-out",
         collapsed ? "w-[72px]" : "w-[280px]",
       ].join(" ")}
@@ -100,11 +92,7 @@ export function SubSidebar({
                   collapsed ? "h-9 w-9 text-[10px]" : "h-11 w-11 text-xs",
                 ].join(" ")}
                 style={{
-                  background: `linear-gradient(
-                    135deg,
-                    ${synapTheme.cyan},
-                    ${synapTheme.blue}
-                  )`,
+                  backgroundColor: synapTheme.blue,
                 }}
               >
                 {getCompanyInitials(company.name)}
@@ -162,7 +150,7 @@ export function SubSidebar({
             aria-label={
               collapsed ? "Déplier le sous-menu" : "Replier le sous-menu"
             }
-            className="flex h-9 w-9 items-center justify-center rounded-xl text-slate-400 transition hover:bg-[#EAF6FF] hover:text-[#218BE4]"
+            className="flex h-9 w-9 items-center justify-center rounded-xl text-slate-400 transition hover:bg-[#EAF5F1] hover:text-[#16775C]"
           >
             {collapsed ? (
               <PanelLeftOpen className="h-[19px] w-[19px]" strokeWidth={1.8} />
@@ -203,7 +191,7 @@ export function SubSidebar({
               {section.items.map((item) => {
                 const ItemIcon = item.icon;
 
-                const active = pathIsActive(pathname, item.href);
+                const active = isSubMenuItemActive(pathname, item);
 
                 return (
                   <div key={item.href} className="group/item relative">
@@ -215,7 +203,7 @@ export function SubSidebar({
                         collapsed ? "justify-center px-0" : "gap-3 px-3 py-2",
                         active
                           ? "font-semibold"
-                          : "font-medium text-slate-500 hover:bg-[#F0F8FF] hover:text-[#071B3D]",
+                          : "font-medium text-slate-500 hover:bg-[#F7FAF9] hover:text-[#152B3B]",
                       ].join(" ")}
                       style={{
                         color: active ? synapTheme.blue : undefined,
@@ -235,10 +223,7 @@ export function SubSidebar({
                               : "bottom-2 left-0 top-2 w-1",
                           ].join(" ")}
                           style={{
-                            background: `linear-gradient(
-                              ${synapTheme.cyan},
-                              ${synapTheme.blue}
-                            )`,
+                            backgroundColor: synapTheme.blue,
                           }}
                         />
                       )}

@@ -19,12 +19,11 @@ export function MainSidebar({
   return (
     <aside
       className={[
-        "relative z-40 flex h-dvh w-[72px] shrink-0 flex-col",
+        "relative z-40 hidden h-dvh w-[72px] shrink-0 flex-col lg:flex",
         "items-center border-r py-3",
       ].join(" ")}
       style={{
-        background:
-          "linear-gradient(180deg, var(--color-sidebar) 0%, color-mix(in srgb, var(--color-sidebar) 82%, black) 100%)",
+        backgroundColor: "var(--color-sidebar)",
         borderColor: "rgba(255, 255, 255, 0.08)",
       }}
     >
@@ -35,8 +34,7 @@ export function MainSidebar({
           "rounded-xl text-sm font-bold text-white shadow-sm",
         ].join(" ")}
         style={{
-          background:
-            "linear-gradient(135deg, var(--color-secondary), var(--color-primary))",
+          backgroundColor: "var(--color-primary)",
         }}
       >
         SR
@@ -68,8 +66,7 @@ export function MainSidebar({
                 style={
                   active
                     ? {
-                        background:
-                          "linear-gradient(135deg, var(--color-secondary), var(--color-primary))",
+                        backgroundColor: "var(--color-primary)",
                       }
                     : undefined
                 }
@@ -107,8 +104,7 @@ export function MainSidebar({
               "transition duration-200 hover:scale-105",
             ].join(" ")}
             style={{
-              background:
-                "linear-gradient(135deg, var(--color-secondary), var(--color-primary))",
+              backgroundColor: "var(--color-primary)",
               borderColor: "rgba(255, 255, 255, 0.25)",
             }}
           >

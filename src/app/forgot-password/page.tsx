@@ -10,6 +10,7 @@ import {
 
 import Link from "next/link";
 import { FormEvent, useState } from "react";
+import { authApi } from "@/API";
 
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState("");
@@ -25,15 +26,7 @@ export default function ForgotPasswordPage() {
     setMessage("");
 
     try {
-      const response = await fetch("/api/auth/forgot-password", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          email,
-        }),
-      });
+      const response = await authApi.forgotPassword({ email });
 
       const data = (await response.json()) as {
         message?: string;
@@ -59,10 +52,10 @@ export default function ForgotPasswordPage() {
     <main className="flex min-h-dvh items-center justify-center bg-[#f4f8fd] px-5">
       <div className="w-full max-w-md rounded-3xl border border-slate-200 bg-white p-8">
         <div className="mb-6 flex h-14 w-14 items-center justify-center rounded-2xl bg-[#eaf7fd]">
-          <Mail className="h-7 w-7 text-[#218be4]" />
+          <Mail className="h-7 w-7 text-[#16775C]" />
         </div>
 
-        <h1 className="text-2xl font-bold text-[#071b3d]">
+        <h1 className="text-2xl font-bold text-[#152B3B]">
           Mot de passe oublié
         </h1>
 
@@ -79,7 +72,7 @@ export default function ForgotPasswordPage() {
 
             <Link
               href="/authentication"
-              className="mt-6 flex items-center justify-center gap-2 text-sm font-medium text-[#218be4]"
+              className="mt-6 flex items-center justify-center gap-2 text-sm font-medium text-[#16775C]"
             >
               <ArrowLeft className="h-4 w-4" />
               Retour à la connexion
@@ -90,7 +83,7 @@ export default function ForgotPasswordPage() {
             <div>
               <label
                 htmlFor="email"
-                className="mb-2 block text-sm font-semibold text-[#071b3d]"
+                className="mb-2 block text-sm font-semibold text-[#152B3B]"
               >
                 Adresse e-mail
               </label>
@@ -106,7 +99,7 @@ export default function ForgotPasswordPage() {
                   placeholder="nom@entreprise.com"
                   required
                   disabled={loading}
-                  className="h-12 w-full rounded-xl border border-slate-200 pl-12 pr-4 text-sm outline-none focus:border-[#218be4] focus:ring-4 focus:ring-[#218be4]/10"
+                  className="h-12 w-full rounded-xl border border-slate-200 pl-12 pr-4 text-sm outline-none focus:border-[#16775C] focus:ring-4 focus:ring-[#16775C]/10"
                 />
               </div>
             </div>
@@ -120,7 +113,7 @@ export default function ForgotPasswordPage() {
             <button
               type="submit"
               disabled={loading}
-              className="flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#4cb8e9] to-[#218be4] text-sm font-semibold text-white disabled:opacity-60"
+              className="flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-[#16775C] text-sm font-semibold text-white transition hover:bg-[#12664E] disabled:opacity-60"
             >
               {loading ? (
                 <>
@@ -137,7 +130,7 @@ export default function ForgotPasswordPage() {
 
             <Link
               href="/authentication"
-              className="flex items-center justify-center gap-2 text-sm font-medium text-[#218be4]"
+              className="flex items-center justify-center gap-2 text-sm font-medium text-[#16775C]"
             >
               <ArrowLeft className="h-4 w-4" />
               Retour à la connexion

@@ -27,6 +27,7 @@ import {
 } from "lucide-react";
 
 import { useParams, useRouter } from "next/navigation";
+import { EmployeeScheduleFinder } from "@/components/employees/employee-schedule-finder";
 
 /*
  * ============================================================
@@ -69,6 +70,13 @@ type DailyAttendanceInterval = {
   durationMinutes: number;
 };
 
+type AttendanceAnomaly = {
+  code: string;
+  label: string;
+  severity: "WARNING" | "INFO";
+  minutes?: number;
+};
+
 type EmployeeScheduleAttendanceDay = {
   date: string;
 
@@ -92,6 +100,7 @@ type EmployeeScheduleAttendanceDay = {
   totalBreakMinutes: number;
 
   status: DailyAttendanceStatus;
+  anomalies?: AttendanceAnomaly[];
 };
 
 type EmployeeScheduleAttendanceResponse = {
@@ -606,6 +615,8 @@ export default function EmployeeSchedulePage() {
         </div>
       </header>
 
+      <div className="mb-5 shrink-0"><EmployeeScheduleFinder /></div>
+
       {/* Filtre */}
 
       <section
@@ -982,6 +993,16 @@ function ScheduleDayRow({
           {day.attendances.length} pointage
           {day.attendances.length > 1 ? "s" : ""}
         </p>
+
+        {day.anomalies && day.anomalies.length > 0 && (
+          <div className="mt-3 space-y-1.5">
+            {day.anomalies.map((anomaly, index) => (
+              <p key={`${anomaly.code}-${index}`} title={anomaly.label} className={`rounded-lg px-2 py-1 text-[10px] font-medium leading-4 ${anomaly.severity === "WARNING" ? "bg-[#FCF4E8] text-[#8A6428]" : "bg-[#F0F5F2] text-[#536A76]"}`}>
+                {anomaly.label}{anomaly.minutes != null ? ` · ${formatDuration(anomaly.minutes)}` : ""}
+              </p>
+            ))}
+          </div>
+        )}
       </div>
 
       <div

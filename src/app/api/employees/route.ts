@@ -41,6 +41,10 @@ export async function GET(request: NextRequest) {
   const sortBy = searchParams.get("sortBy") ?? "createdAt";
 
   const sortOrder = searchParams.get("sortOrder") ?? "desc";
+  const search = searchParams.get("search");
+  const status = searchParams.get("status");
+  const departmentId = searchParams.get("departmentId");
+  const contractTypeId = searchParams.get("contractTypeId");
 
   const backendParams = new URLSearchParams({
     page,
@@ -48,6 +52,10 @@ export async function GET(request: NextRequest) {
     sortBy,
     sortOrder,
   });
+  if (search) backendParams.set("search", search);
+  if (status) backendParams.set("status", status);
+  if (departmentId) backendParams.set("departmentId", departmentId);
+  if (contractTypeId) backendParams.set("contractTypeId", contractTypeId);
 
   try {
     const response = await fetch(
@@ -77,5 +85,32 @@ export async function GET(request: NextRequest) {
         status: 503,
       },
     );
+  }
+}
+
+export async function POST(request: Request) {
+  const { apiUrl, token } = await getAuthentication();
+  if (!apiUrl || !token) {
+    return NextResponse.json({ message: "Non authentifié" }, { status: 401 });
+  }
+
+  let body: unknown;
+  try {
+    body = await request.json();
+  } catch {
+    return NextResponse.json({ message: "Les données envoyées sont invalides." }, { status: 400 });
+  }
+
+  try {
+    const response = await fetch(`${apiUrl}/employees`, {
+      method: "POST",
+      headers: { Authorization: `Bearer ${token}`, Accept: "application/json", "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+      cache: "no-store",
+    });
+    const data = await response.json().catch(() => null);
+    return NextResponse.json(data, { status: response.status });
+  } catch {
+    return NextResponse.json({ message: "Le service des employés est indisponible." }, { status: 503 });
   }
 }
